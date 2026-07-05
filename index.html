@@ -21,7 +21,7 @@
 <script>
 const { createApp, ref, reactive, computed, onMounted, watch } = Vue;
 
-const STORAGE_KEY = "okinawa-trip-2026-07-web";
+const STORAGE_KEY = "okinawa-trip-2026-07";
 
 const CATEGORIES = [
   { key: "food", label: "餐飲", emoji: "🍜", color: "#A64D3D" },
@@ -107,7 +107,7 @@ const App = {
       saveTimer = setTimeout(() => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ rate: rate.value, days: days.value }));
         saveState.value = "saved";
-      }, 300);
+      }, 400);
     }
     watch([rate, days], persist, { deep: true });
 
@@ -147,11 +147,6 @@ const App = {
       return CATEGORIES.find(c => c.key === key) || CATEGORIES[CATEGORIES.length - 1];
     }
 
-    function mapsLink(place) {
-      const firstLine = (place || "").split("\n")[0].replace(/[🏠🛫🛬✈️🚌]/g, "").trim();
-      return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(firstLine || place);
-    }
-
     function fmtTWD(n) {
       return Math.round(n).toLocaleString();
     }
@@ -160,7 +155,7 @@ const App = {
       rate, rateInput, days, activeDay, saveState, CATEGORIES, FLIGHTS,
       applyRate, addScheduleRow, removeScheduleRow,
       newItemName, newItemAmount, newItemCategory, addItem, removeItem,
-      dayTotal, grandTotalJPY, grandTotalTWD, categoryOf, mapsLink, fmtTWD,
+      dayTotal, grandTotalJPY, grandTotalTWD, categoryOf, fmtTWD,
     };
   },
   template: `
@@ -182,7 +177,7 @@ const App = {
         <div>
           <div class="text-xs text-[#7C8B96] mb-0.5">旅程總花費</div>
           <div class="font-display font-bold text-xl text-[#487196]">¥{{ grandTotalJPY.toLocaleString() }}</div>
-          <div class="text-sm font-bold text-[#A64D3D] mt-0.5">≈ NT${{ fmtTWD(grandTotalTWD) }}</div>
+          <div class="text-sm font-bold text-[#A64D3D] mt-0.5">≈ NT\${{ fmtTWD(grandTotalTWD) }}</div>
         </div>
         <div class="text-3xl">💰</div>
       </div>
@@ -251,7 +246,7 @@ const App = {
           <div class="flex text-[11px] font-bold text-white bg-[#487196] rounded-t-lg overflow-hidden">
             <div class="w-24 px-2.5 py-1.5">時間</div>
             <div class="flex-1 px-2.5 py-1.5">地點</div>
-            <div class="w-14"></div>
+            <div class="w-7"></div>
           </div>
           <div class="border-2 border-t-0 border-[#E6D3A0] rounded-b-lg overflow-hidden">
             <div v-if="days[activeDay].itinerary.length === 0" class="text-xs text-[#7C8B96] p-2.5">
@@ -263,8 +258,6 @@ const App = {
                 class="w-24 border-0 border-r border-[#E6D3A0] px-2.5 py-2 text-xs font-bold text-[#487196] outline-none bg-transparent" />
               <textarea v-model="row.place" placeholder="地點 / 行程內容" rows="1"
                 class="flex-1 min-w-0 border-0 px-2.5 py-2 text-sm outline-none bg-transparent leading-relaxed"></textarea>
-              <a :href="mapsLink(row.place)" target="_blank"
-                class="w-7 flex items-center justify-center text-[#7C8B96]" title="在Google地圖開啟">📍</a>
               <button @click="removeScheduleRow(activeDay, row.id)" class="w-7 text-[#7C8B96]">✕</button>
             </div>
           </div>
@@ -275,7 +268,7 @@ const App = {
         </div>
 
         <!-- expenses -->
-        <div class="mt-5 mb-1 text-xs font-bold text-[#A64D3D] flex items-center gap-1.5">💰 花費紀錄</div>
+        <div class="mt-5 mb-1 text-xs font-bold text-[#A64D3D] flex items-center gap-1.5">開放 💰 花費紀錄</div>
         <div class="flex flex-col gap-2 mt-2">
           <div v-if="days[activeDay].items.length === 0" class="text-sm text-[#7C8B96] py-2">
             這天還沒有花費紀錄，在下面新增一筆吧。
@@ -292,7 +285,7 @@ const App = {
             </div>
             <div class="text-right">
               <div class="text-sm font-bold text-[#487196]">¥{{ Number(item.amount).toLocaleString() }}</div>
-              <div class="text-[11px] text-[#A64D3D]">≈NT${{ fmtTWD(item.amount * rate) }}</div>
+              <div class="text-[11px] text-[#A64D3D]">≈NT\${{ fmtTWD(item.amount * rate) }}</div>
             </div>
             <button @click="removeItem(activeDay, item.id)" class="text-[#7C8B96] p-1">✕</button>
           </div>
@@ -300,7 +293,7 @@ const App = {
 
         <div v-if="days[activeDay].items.length > 0" class="flex justify-end gap-1.5 mt-2.5 text-xs text-[#7C8B96]">
           小計 ¥{{ dayTotal(days[activeDay]).toLocaleString() }} ・
-          <span class="text-[#A64D3D] font-bold">NT${{ fmtTWD(dayTotal(days[activeDay]) * rate) }}</span>
+          <span class="text-[#A64D3D] font-bold">NT\${{ fmtTWD(dayTotal(days[activeDay]) * rate) }}</span>
         </div>
 
         <div class="mt-3.5 border-t border-[#E6D3A0] pt-3">
